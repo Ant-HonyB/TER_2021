@@ -1,3 +1,5 @@
+import sys
+from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 from pyhpo import stats
@@ -5,7 +7,7 @@ from pyhpo.ontology import Ontology
 from pyhpo.set import HPOSet, BasicHPOSet
 
 data = pd.read_csv("/Users/Mopchi_44/Casier/Projets/TER_2021/outputs_conqurbio/FirstBatch/NCBI_Pheno/Autoimmune Lymphoproliferative Syndrome.csv")
-current_disease = "Autoimmune Lymphoproliferative Syndrome"
+current_disease = f"{output_dir.joinpath(fichier.parts[-1])}
 _ = Ontology()
 hpo_terms = data.name.to_list()
 hposet = list([Ontology.match(q) for q in hpo_terms])
@@ -14,18 +16,18 @@ hposet = list([Ontology.match(q) for q in hpo_terms])
 diseases_OMIM = {}
 diseases_Orpha = {}
 diseases_NA = {}
-doublons = 0        #compte les symptomes liés à la maladie de départ dans les deux BDs.
-compte_total = 0    #total de la somme des compteurs
-compteur_OMIM = 0   #compte les symptomes associés au moins chez OMIM
-compteur_Orpha = 0  #compte les symptomes associés au moins chez Orphanet
-compteur_NA = 0     #compte les symptomes non-associés
-compteur_found = 0  #compte l'ensemble des symptomes liés à la maladie de départ
+duplicates = 0     #compte les symptomes liés à la maladie de départ dans les deux BDs.
+compte_total = 0   #total de la somme des counters
+counter_OMIM = 0   #compte les symptomes associés au moins chez OMIM
+counter_Orpha = 0  #compte les symptomes associés au moins chez Orphanet
+counter_NA = 0     #compte les symptomes non-associés
+counter_found = 0  #compte l'ensemble des symptomes liés à la maladie de départ
 
 
 def count_with_twins():
-    compteur_OMIM = 0
-    compteur_Orpha = 0
-    compteur_NA = 0
+    counter_OMIM = 0
+    counter_Orpha = 0
+    counter_NA = 0
 
     for q in range(len(hposet)):
         presence_OMIM = 0
@@ -35,33 +37,33 @@ def count_with_twins():
         for diseases in range(len(_hpo_omim)):
             if current_disease.lower() in _hpo_omim[diseases].name.lower() and presence_OMIM == 0:
                 diseases_OMIM.update({hposet[q].id: hposet[0].name})
-                compteur_OMIM += 1
+                counter_OMIM += 1
                 presence_OMIM = 1
         for diseases in range(len(_hpo_orpha)):
             if current_disease.lower() in _hpo_orpha[diseases].name.lower() and presence_Orpha == 0:
                 diseases_Orpha.update({hposet[q].id: hposet[0].name})
-                compteur_Orpha += 1
+                counter_Orpha += 1
                 presence_Orpha = 1
         if presence_OMIM == 0 and presence_Orpha == 0:
-            compteur_NA += 1
+            counter_NA += 1
             diseases_NA.update({hposet[q].id:hposet[q].name})
 
-    compte_total = compteur_OMIM + compteur_Orpha + compteur_NA
-    doublons = compte_total - len(hpo_terms)
+    compte_total = counter_OMIM + counter_Orpha + counter_NA
+    duplicates = compte_total - len(hpo_terms)
 
     #print("compte :", compte_total, "et nbr_symptome :", len(hpo_terms))
-    #print("doublons :", doublons)
-    #print("omim : ", compteur_OMIM)
-    #print("orpha : ", compteur_Orpha)
-    #print("NC : ", compteur_NA)
+    #print("doublons :", duplicates)
+    #print("omim : ", counter_OMIM)
+    #print("orpha : ", counter_Orpha)
+    #print("NC : ", counter_NA)
 
 
 
 def count_without_twins():
-    compteur_OMIM = 0
-    compteur_Orpha = 0
-    compteur_NA = 0
-    compteur_found = 0
+    counter_OMIM = 0
+    counter_Orpha = 0
+    counter_NA = 0
+    counter_found = 0
 
     for q in range(len(hposet)):
         presence_OMIM = 0
@@ -70,51 +72,47 @@ def count_without_twins():
         _hpo_orpha = list(hposet[q].orpha_diseases)
         for diseases in range(len(_hpo_omim)):
             if current_disease.lower() in _hpo_omim[diseases].name.lower() and presence_OMIM == 0:
-                compteur_found += 1
-                compteur_OMIM += 1
+                counter_found += 1
+                counter_OMIM += 1
                 presence_OMIM = 1
         for diseases in range(len(_hpo_orpha)):
             if current_disease.lower() in _hpo_orpha[diseases].name.lower() and presence_Orpha + presence_OMIM == 0 :
-                compteur_found += 1
-                compteur_Orpha += 1
+                counter_found += 1
+                counter_Orpha += 1
                 presence_Orpha = 1
         if presence_OMIM == 0 and presence_Orpha == 0:
-            compteur_NA += 1
+            counter_NA += 1
 
-    #print("compte :", compteur_found + compteur_NA, "et nbr_symptome :", len(hpo_terms))
-    #print("symptomes liés à la maladie : ", compteur_found)
-    #print("lié à orphanet :", compteur_Orpha)
-    #print("lié à Omim :", compteur_OMIM)
-    #print("présents dans les deux bases :", doublons)
-    #print("non-liés : ", compteur_NA)
-
-
-
-
-
-labels = "associé à une BD", "associé aux deux BD", "Non-associé"
-sizes = [compteur_found, doublons, compteur_NA]
-colors = ['yellowgreen', 'gold', 'lightskyblue']
-title = plt.title("Autoimmune Lymphoproliferative Syndrome (NCBI)")
-
-title.set_ha("center")
-plt.pie(sizes, labels=labels, colors=colors,
-        autopct='%1.2f%%', startangle=90)
-
-plt.axis('equal')
-plt.savefig("/Users/Mopchi_44/Casier/Projets/TER_2021/outputs_conqurbio/FirstBatch/les_camemberts/Autoimmune_Lymphoproliferative_Syndrome_NCBI.png")
-plt.show()
+    #print("compte :", counter_found + counter_NA, "et nbr_symptome :", len(hpo_terms))
+    #print("symptomes liés à la maladie : ", counter_found)
+    #print("lié à orphanet :", counter_Orpha)
+    #print("lié à Omim :", counter_OMIM)
+    #print("présents dans les deux bases :", duplicates)
+    #print("non-liés : ", counter_NA)
 
 
 
 
+def convert_to_piechart():
+    labels = "associé à une BD", "associé aux deux BD", "Non-associé"
+    sizes = [counter_found, duplicates, counter_NA]
+    colors = ['yellowgreen', 'gold', 'lightskyblue']
+    title = plt.title("Autoimmune Lymphoproliferative Syndrome (NCBI)")
 
+    title.set_ha("center")
+    plt.pie(sizes, labels=labels, colors=colors,
+            autopct='%1.2f%%', startangle=90)
 
+    plt.axis('equal')
+    plt.savefig("/Users/Mopchi_44/Casier/Projets/TER_2021/outputs_conqurbio/FirstBatch/les_camemberts/Autoimmune_Lymphoproliferative_Syndrome_NCBI.png")
+    plt.show()
 
 
 
 def main(indir, outdir):
-    # something
+    input_dir = Path(indir)  # dossier où se trouvent les listes de gènes provenant des maladies recherchées
+    output_dir = Path(outdir)  # dossier où sont placés les résultats de g:profiler pour chaque liste
+
 
 
 if __name__ == '__main__':
