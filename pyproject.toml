@@ -7,10 +7,16 @@ authors = ["Anthony Boutard <tony44wind@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 gprofiler-official = "^1.0.0"
+pandas = "^1.2.4"
+pyhpo = "^2.7.3"
+scipy = {version = "1.6.2", python = ">=3.8,<3.10"}
+matplotlib = "^3.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 jupyter = "^1.0.0"
+ipykernel = "^5.5.4"
+ipython = "^7.23.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
