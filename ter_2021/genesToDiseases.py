@@ -1,30 +1,22 @@
 import sys
+import os
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
-from pyhpo import stats
 from pyhpo.ontology import Ontology
-from pyhpo.set import HPOSet, BasicHPOSet
-
-data = pd.read_csv("/Users/Mopchi_44/Casier/Projets/TER_2021/outputs_conqurbio/FirstBatch/NCBI_Pheno/Autoimmune Lymphoproliferative Syndrome.csv")
-current_disease = f"{output_dir.joinpath(fichier.parts[-1])}
-_ = Ontology()
-hpo_terms = data.name.to_list()
-hposet = list([Ontology.match(q) for q in hpo_terms])
 
 #Les dictionnaires récupèrent les différents identifiants des symptomes référencés comme associés (Orpha/OMIM) ou non (NA).
 diseases_OMIM = {}
 diseases_Orpha = {}
 diseases_NA = {}
-duplicates = 0     #compte les symptomes liés à la maladie de départ dans les deux BDs.
-compte_total = 0   #total de la somme des counters
-counter_OMIM = 0   #compte les symptomes associés au moins chez OMIM
-counter_Orpha = 0  #compte les symptomes associés au moins chez Orphanet
-counter_NA = 0     #compte les symptomes non-associés
-counter_found = 0  #compte l'ensemble des symptomes liés à la maladie de départ
 
+def count_with_twins(hposet, current_disease):
+    """
 
-def count_with_twins():
+    :param hposet:
+    :param current_disease:
+    :return:
+    """
     counter_OMIM = 0
     counter_Orpha = 0
     counter_NA = 0
@@ -46,10 +38,11 @@ def count_with_twins():
                 presence_Orpha = 1
         if presence_OMIM == 0 and presence_Orpha == 0:
             counter_NA += 1
-            diseases_NA.update({hposet[q].id:hposet[q].name})
+            diseases_NA.update({hposet[q].id: hposet[q].name})
 
     compte_total = counter_OMIM + counter_Orpha + counter_NA
-    duplicates = compte_total - len(hpo_terms)
+    duplicates = compte_total - len(hposet)
+    return duplicates #on pourra rajouter les compteurs Orpha et Omim a mettre en legende dans les camemberts
 
     #print("compte :", compte_total, "et nbr_symptome :", len(hpo_terms))
     #print("doublons :", duplicates)
@@ -59,7 +52,7 @@ def count_with_twins():
 
 
 
-def count_without_twins():
+def count_without_twins(hposet, current_disease):
     counter_OMIM = 0
     counter_Orpha = 0
     counter_NA = 0
@@ -82,6 +75,7 @@ def count_without_twins():
                 presence_Orpha = 1
         if presence_OMIM == 0 and presence_Orpha == 0:
             counter_NA += 1
+    return counter_NA, counter_found
 
     #print("compte :", counter_found + counter_NA, "et nbr_symptome :", len(hpo_terms))
     #print("symptomes liés à la maladie : ", counter_found)
@@ -93,26 +87,46 @@ def count_without_twins():
 
 
 
-def convert_to_piechart():
+def convert_to_piechart(current_disease, output_dir, data_dir, counter_found, duplicates, counter_NA):
     labels = "associé à une BD", "associé aux deux BD", "Non-associé"
     sizes = [counter_found, duplicates, counter_NA]
     colors = ['yellowgreen', 'gold', 'lightskyblue']
-    title = plt.title("Autoimmune Lymphoproliferative Syndrome (NCBI)")
-
+    title = "Pas trouvé !"
+    if "NCBI" in data_dir.absolute().as_posix():
+        title = plt.title(f"{current_disease} (NCBI)")
+    elif "CQR" in data_dir.absolute().as_posix():
+        title = plt.title(f"{current_disease} (ConRur-Bio)")
     title.set_ha("center")
     plt.pie(sizes, labels=labels, colors=colors,
             autopct='%1.2f%%', startangle=90)
-
     plt.axis('equal')
-    plt.savefig("/Users/Mopchi_44/Casier/Projets/TER_2021/outputs_conqurbio/FirstBatch/les_camemberts/Autoimmune_Lymphoproliferative_Syndrome_NCBI.png")
+    if "NCBI" in data_dir.absolute().as_posix():
+        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_NCBI.png")
+    if "NCBI" in data_dir.absolute().as_posix():
+        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_CQR-BIO.png")
     plt.show()
 
 
 
 def main(indir, outdir):
-    input_dir = Path(indir)  # dossier où se trouvent les listes de gènes provenant des maladies recherchées
+    data_dir = Path(indir)  # dossier où se trouvent les listes de gènes provenant des maladies recherchées
     output_dir = Path(outdir)  # dossier où sont placés les résultats de g:profiler pour chaque liste
+    if not data_dir.is_dir():
+        raise ValueError(f"\nInput directory : {data_dir.as_posix()} is not a directory")
 
+    if not output_dir.is_dir():
+        raise ValueError(f"\nOutput directory : {output_dir.as_posix()} is not a directory")
+
+    for fichier in list(data_dir.glob("*.csv")):
+        if not fichier.parts[-1].startswith(".") and fichier.is_file():
+            data = pd.read_csv(fichier.absolute().as_posix())
+            current_disease = fichier.name.replace(".csv", "")
+            _ = Ontology()
+            hpo_terms = data.name.to_list()
+            hposet = [Ontology.match(q) for q in hpo_terms]
+            duplicates = count_with_twins(hposet, current_disease)
+            counter_NA, counter_found = count_without_twins(hposet, current_disease)
+            convert_to_piechart(current_disease, output_dir, counter_found, duplicates, counter_NA)
 
 
 if __name__ == '__main__':
