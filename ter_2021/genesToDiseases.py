@@ -104,7 +104,6 @@ def convert_to_piechart(current_disease, output_dir, data_dir, counter_found, du
         plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_NCBI.png")
     if "NCBI" in data_dir.absolute().as_posix():
         plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_CQR-BIO.png")
-    plt.show()
 
 
 
@@ -126,7 +125,7 @@ def main(indir, outdir):
             hposet = [Ontology.match(q) for q in hpo_terms]
             duplicates = count_with_twins(hposet, current_disease)
             counter_NA, counter_found = count_without_twins(hposet, current_disease)
-            convert_to_piechart(current_disease, output_dir, counter_found, duplicates, counter_NA)
+            convert_to_piechart(current_disease, output_dir, data_dir, counter_found, duplicates, counter_NA)
 
 
 if __name__ == '__main__':
