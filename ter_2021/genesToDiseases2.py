@@ -41,72 +41,25 @@ def count_with_twins(hposet, current_disease):
 
     compte_total = counter_OMIM + counter_Orpha + counter_NA
     duplicates = compte_total - len(hposet)
-    return duplicates #on pourra rajouter les compteurs Orpha et Omim a mettre en legende dans les camemberts
-
-    #print("compte :", compte_total, "et nbr_symptome :", len(hpo_terms))
-    #print("doublons :", duplicates)
-    #print("omim : ", counter_OMIM)
-    #print("orpha : ", counter_Orpha)
-    #print("NC : ", counter_NA)
+    return duplicates, counter_OMIM, counter_Orpha, counter_NA
 
 
-
-def count_without_twins(hposet, current_disease):
-    """
-
-    :param hposet:
-    :param current_disease:
-    :return:
-    """
-    counter_OMIM = 0
-    counter_Orpha = 0
-    counter_NA = 0
-    counter_found = 0
-
-    for q in range(len(hposet)):
-        presence_OMIM = 0
-        presence_Orpha = 0
-        _hpo_omim = list(hposet[q].omim_diseases)
-        _hpo_orpha = list(hposet[q].orpha_diseases)
-        for diseases in range(len(_hpo_omim)):
-            if current_disease.lower() in _hpo_omim[diseases].name.lower() and presence_OMIM == 0:
-                counter_found += 1
-                counter_OMIM += 1
-                presence_OMIM = 1
-        for diseases in range(len(_hpo_orpha)):
-            if current_disease.lower() in _hpo_orpha[diseases].name.lower() and presence_Orpha + presence_OMIM == 0 :
-                counter_found += 1
-                counter_Orpha += 1
-                presence_Orpha = 1
-        if presence_OMIM == 0 and presence_Orpha == 0:
-            counter_NA += 1
-    return counter_NA, counter_found
-
-    #print("compte :", counter_found + counter_NA, "et nbr_symptome :", len(hpo_terms))
-    #print("symptomes liés à la maladie : ", counter_found)
-    #print("lié à orphanet :", counter_Orpha)
-    #print("lié à Omim :", counter_OMIM)
-    #print("présents dans les deux bases :", duplicates)
-    #print("non-liés : ", counter_NA)
-
-
-
-
-def convert_to_piechart(current_disease, output_dir, data_dir, counter_found, duplicates, counter_NA):
+def convert_to_piechart(current_disease, output_dir, data_dir, counter_OMIM, duplicates, counter_Orpha, counter_NA):
     """
 
     :param current_disease:
     :param output_dir:
     :param data_dir:
-    :param counter_found:
+    :param counter_OMIM:
     :param duplicates:
+    :param counter_Orpha:
     :param counter_NA:
     :return:
     """
-    labels1 = "dans une BD", "dans deux BD", "absent"
-    labels2 = "", "", ""
-    sizes = [counter_found, duplicates, counter_NA]
-    colors = ['yellowgreen', 'gold', 'lightskyblue']
+    labels1 = "OMIM", "Dans les deux", "Orphanet", "Absent"
+    labels2 = "", "", "", ""
+    sizes = [counter_OMIM, duplicates, counter_Orpha, counter_NA]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', "lightpurple"]
     title = "Pas trouvé !"
     if "NCBI" in data_dir.absolute().as_posix():
         title = plt.title(f"{current_disease} (NCBI)")
@@ -146,9 +99,8 @@ def main(indir, outdir):
             _ = Ontology()
             hpo_terms = data.name.to_list()
             hposet = [Ontology.match(q) for q in hpo_terms]
-            duplicates = count_with_twins(hposet, current_disease)
-            counter_NA, counter_found = count_without_twins(hposet, current_disease)
-            convert_to_piechart(current_disease, output_dir, data_dir, counter_found, duplicates, counter_NA)
+            duplicates, counter_OMIM, counter_Orpha, counter_NA = count_with_twins(hposet, current_disease)
+            convert_to_piechart(current_disease, output_dir, data_dir, counter_OMIM, duplicates, counter_Orpha, counter_NA)
 
 
 if __name__ == '__main__':
