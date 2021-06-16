@@ -56,10 +56,10 @@ def convert_to_piechart(current_disease, output_dir, data_dir, counter_OMIM, dup
     :param counter_NA:
     :return:
     """
-    labels1 = "Absent", "OMIM", "Orphanet + OMIM", "Orphanet"
+    labels1 = "OMIM", "Orphanet + OMIM", "Orphanet", "Absent"
     labels2 = "", "", "", ""
-    sizes = [counter_NA, counter_OMIM, duplicates, counter_Orpha]
-    colors = ['lightskyblue', 'yellowgreen', 'gold', "indianred"]
+    sizes = [counter_OMIM, duplicates, counter_Orpha, counter_NA]
+    colors = ['khaki', 'springgreen', "turquoise", 'gainsboro']
     title = "Pas trouvé !"
     if "NCBI" in data_dir.absolute().as_posix():
         title = plt.title(f"{current_disease} (NCBI)")
