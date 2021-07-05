@@ -6,6 +6,7 @@ from matplotlib_venn import venn3
 from pyhpo.ontology import Ontology
 
 #Les dictionnaires récupèrent les différents identifiants des symptomes référencés comme associés (Orpha/OMIM) ou non (NA).
+#Ils ne sont pas exploité par le programme pour le moment.
 diseases_OMIM = {}
 diseases_Orpha = {}
 diseases_NA = {}
@@ -13,11 +14,15 @@ diseases_NA = {}
 
 def count_with_twins(hposet, current_disease):
     """
-
-    :param hposet:
-    :param current_disease:
-    :return:
+    Interroge l'API HPO et demande, pour chaque signe clinique, s'il est affilié à la maladie de départ.
+    Fait le compte total des signes cliniques affilié à la base de données OMIM et/ou Orphanet,
+    et celui des signes n'apparaissant dans aucune base de données.
+    :param hposet: ensemble des signes cliniques du fichier initial converti en des termes référencés par HPO
+    :param current_disease: maladie de départ recherchée sur Entrez Gene de NCBI ou sur ConQuR-Bio.
+    :return: le compte des signes cliniques respectivement référencés soit par OMIM, par Orphanet,
+    par les deux ou par aucun.
     """
+
     counter_OMIM = 0
     counter_Orpha = 0
     counter_NA = 0
@@ -56,16 +61,20 @@ def count_with_twins(hposet, current_disease):
 def convert_to_graphs(current_disease, output_dir, data_dir, counter_OMIM, duplicates,
                         counter_Orpha, counter_NA, compte_total):
     """
-
-    :param current_disease:
-    :param output_dir:
-    :param data_dir:
-    :param counter_OMIM:
-    :param duplicates:
-    :param counter_Orpha:
-    :param counter_NA:
-    :return:
+    Exploite les différents comptes obtenus par count_with_twins() sous forme de camemberts
+    et de diagramme de Venn.
+    :param current_disease: maladie de départ recherchée sur Entrez Gene de NCBI ou sur ConQuR-Bio.
+    :param output_dir: dossier où sont déposés les différents graphiques obtenus sur la base de l'ensemble
+    des fichiers provenant du dossier initial data_dir.
+    :param data_dir: dossier où se trouve les fichiers contenant les signes cliniques récupérés à partir de g:profiler
+    sur la base des recherches de maladie de départ entrées sur Entrez Gene de NCBI ou sur ConQuR-Bio.
+    :param counter_OMIM: compte des signes cliniques affiliées à la maladie de départ chez OMIM.
+    :param duplicates: compte des signes cliniques affiliées à la maladie de départ chez OMIM ET Orphanet.
+    :param counter_Orpha: compte des signes cliniques affiliées à la maladie de départ chez Orphanet.
+    :param counter_NA: compte des signes cliniques affiliées à la maladie de départ chez aucune base de données.
+    :return: créer des fichiers images contenant respectivement les camemberts et les diagrammes de Venn.
     """
+
     labels = "", "", "", ""
     sizes = [counter_OMIM, duplicates, counter_Orpha, counter_NA]
     colors = ['khaki', 'springgreen', "turquoise", 'gainsboro']
@@ -123,10 +132,13 @@ def convert_to_graphs(current_disease, output_dir, data_dir, counter_OMIM, dupli
 
 def main(indir, outdir):
     """
-
-    :param indir:
-    :param outdir:
-    :return:
+    Le main s'occupe d'automatiser le traitement de chaque fichier du dossier de départ. A partir des listes
+    de signes cliniques de chaque maladie de départ, il exploite les deux fonctions du programme pour déposer
+    dans le dossier final les résultats des comptes sous forme de camemberts et de diagramme de Venn.
+    :param indir: chemin d'accès au dossier initial où se trouve les fichiers exploités
+    :param outdir: chemin d'accès au dossier final où sont déposés les résultats du programme.
+    :return: les résultats composés de camemberts et de diagramme de Venn mettant en évidence
+    les proportions d'affiliation entre signes cliniques et maladie de départ.
     """
     data_dir = Path(indir)  # dossier où se trouvent les listes de gènes provenant des maladies recherchées
     output_dir = Path(outdir)  # dossier où sont placés les résultats de g:profiler pour chaque liste
