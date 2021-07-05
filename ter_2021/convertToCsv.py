@@ -4,14 +4,27 @@ from gprofiler import GProfiler
 
 
 def extract_list_from_line(line: str):
-    # on enleve tous les [] et on reconstruit le string avec les crochets initial/final
+    """
+    on enleve tous les crochets de trop entourant les identifiants et on reconstruit le string avec les crochets initial/final de manière
+    à donner un format valide à l'API g:profiler.
+    """
+
     sansCrochets: str = line.strip().replace("[", "'").replace("]", "'")
     sansCrochets = f"[{sansCrochets[1:-1]}]"
     return eval(sansCrochets)
 
 
 def main(indir, outdir):
-    data_dir = Path(indir)  # dossier où se trouvent les listes de gènes provenant des maladies recherchées
+    """
+    Exploite les listes de gènes obtenues à partir des maladies de départ sélectionnées, avec la recherche
+    par NCBI ou ConQuR-Bio.
+    :param indir: chemin d'accès au dossier initial où se trouve les fichiers exploités.
+    :param outdir: chemin d'accès au dossier final où sont déposés les résultats de g:profiler pour chaque liste.
+    :return: fichier de type csv. composés des listes de signes cliniques obtenues avec g:profiler
+    sur la base des recherches de maladies entrées sur NCBI et ConQuR-Bio.
+    """
+
+    data_dir = Path(indir)
     output_dir = Path(outdir)  # dossier où sont placés les résultats de g:profiler pour chaque liste
 
     if not data_dir.is_dir():
