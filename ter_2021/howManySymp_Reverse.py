@@ -24,10 +24,13 @@ def how_many_symptoms(hposet, current_disease):
 
 def main(indir, outdir):
     """
-
-    :param indir:
-    :param outdir:
-    :return:
+    Ce programme permet d'obtenir le nombre de signes cliniques nécéssaires, à partir des fichiers de listes de signes cliniques obtenus
+    à partir de g:profiler sur la base des recherches NCBI et ConQuR-Bio, pour être sûr de trouver la maladie de départ
+    en tête de liste d'une recherche HPO. Contrairement au premier programme, HowManySymptoms.py, celui-ci propose de diminuer la liste jusqu'à ce qu'elle
+    ne propose plus la maladie de départ en tête de liste plutôt que d'ajouter les signes cliniques élément par élément.
+    :param indir: chemin d'accès au dossier initial où se trouve les fichiers exploités
+    :param outdir: chemin d'accès au dossier final où seront déposés les résultats du programme.
+    :return: ????
     """
     data_dir = Path(indir)  # dossier où se trouvent les listes de gènes provenant des maladies recherchées
     output_dir = Path(outdir)  # dossier où sont placés les résultats de g:profiler pour chaque liste
