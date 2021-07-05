@@ -48,29 +48,29 @@ def how_many_symptoms(hposet, current_disease):
 
 
 
-def to_barplot(counter_symptoms, useless_symptoms, current_disease,
-               hposet, data_dir, output_dir):
-    fig = plt.figure()
-    ax = fig.add_axes([0,0,1,1])
-    langs = ['signes cliniques\n nécéssaires', 'signes cliniques éronnés']
-    res = [counter_symptoms, len(useless_symptoms)]
-    #fig.legend(f"les symptomes utiles sont : {total_useful_symp}")
-    title = "Pas trouvé !"
-    if "NCBI" in data_dir.absolute().as_posix():
-        title = plt.title(f"{current_disease} (NCBI)\n N = {len(hposet)}")
-    elif "CQR" in data_dir.absolute().as_posix():
-        title = plt.title(f"{current_disease} (ConQur-Bio)\n N = {len(hposet)}")
+#def to_barplot(counter_symptoms, useless_symptoms, current_disease
+#               hposet, data_dir, output_dir):
+#    fig = plt.figure()
+#    ax = fig.add_axes([0,0,1,1])
+#    langs = ['signes cliniques\n nécéssaires', 'signes cliniques éronnés']
+#    res = [counter_symptoms, len(useless_symptoms)]
+#    #fig.legend(f"les symptomes utiles sont : {total_useful_symp}")
+#    title = "Pas trouvé !"
+#    if "NCBI" in data_dir.absolute().as_posix():
+#        title = plt.title(f"{current_disease} (NCBI)\n N = {len(hposet)}")
+#    elif "CQR" in data_dir.absolute().as_posix():
+#        title = plt.title(f"{current_disease} (ConQur-Bio)\n N = {len(hposet)}")
     #elif "bruit_test" in data_dir.absolute().as_posix():
        # title = plt.title(f"{current_disease} (test bruit)\n N = {compte_total}")
-    title.set_ha("center")
-    ax.bar(langs, res)
-    if "NCBI" in data_dir.absolute().as_posix():
-        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_NCBI.png")
-    elif "CQR" in data_dir.absolute().as_posix():
-        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_CQR-BIO.png")
-    elif "bruit_test" in data_dir.absolute().as_posix():
-        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_bruit-test.png")
-    plt.figure().clear()
+#    title.set_ha("center")
+#    ax.bar(langs, res)
+#    if "NCBI" in data_dir.absolute().as_posix():
+#        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_NCBI.png")
+#    elif "CQR" in data_dir.absolute().as_posix():
+#        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_CQR-BIO.png")
+#    elif "bruit_test" in data_dir.absolute().as_posix():
+#        plt.savefig(f"{output_dir.joinpath(current_disease).absolute().as_posix()}_bruit-test.png")
+#    plt.figure().clear()
 
 
 def main(indir, outdir):
@@ -98,7 +98,7 @@ def main(indir, outdir):
             hpo_terms = data.name.to_list()
             hposet = [Ontology.match(q) for q in hpo_terms]
             useless_symptoms, counter_symptoms = how_many_symptoms(hposet, current_disease)
-            to_barplot(counter_symptoms, useless_symptoms,
+            #to_barplot(counter_symptoms, useless_symptoms,
                        current_disease, hposet, data_dir, output_dir)
 
 
