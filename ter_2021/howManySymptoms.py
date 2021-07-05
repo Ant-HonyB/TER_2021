@@ -75,10 +75,12 @@ def to_barplot(counter_symptoms, useless_symptoms, current_disease,
 
 def main(indir, outdir):
     """
-
-    :param indir:
-    :param outdir:
-    :return:
+    Ce programme permet d'obtenir le nombre de signes cliniques nécéssaires, à partir des fichiers de listes de signes cliniques obtenus
+    à partir de g:profiler sur la base des recherches NCBI et ConQuR-Bio, pour être sûr de trouver la maladie de départ
+    en tête de liste d'une recherche HPO.
+    :param indir: chemin d'accès au dossier initial où se trouve les fichiers exploités
+    :param outdir: chemin d'accès au dossier final où seront déposés les résultats du programme.
+    :return: le programme ne retourne rien pour le moment.
     """
     data_dir = Path(indir)
     output_dir = Path(outdir)

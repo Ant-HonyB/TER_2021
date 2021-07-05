@@ -132,7 +132,7 @@ def convert_to_graphs(current_disease, output_dir, data_dir, counter_OMIM, dupli
 
 def main(indir, outdir):
     """
-    Le main s'occupe d'automatiser le traitement de chaque fichier du dossier de départ. A partir des listes
+    Le Main s'occupe d'automatiser le traitement de chaque fichier du dossier de départ. A partir des listes
     de signes cliniques de chaque maladie de départ, il exploite les deux fonctions du programme pour déposer
     dans le dossier final les résultats des comptes sous forme de camemberts et de diagramme de Venn.
     :param indir: chemin d'accès au dossier initial où se trouve les fichiers exploités
